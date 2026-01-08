@@ -5,28 +5,28 @@
  *  Adventure-Game. Ein Spieler kann sich in einer Umgebung bewegen,
  *  mehr nicht. Das src.Spiel sollte auf jeden Fall ausgebaut werden,
  *  damit es interessanter wird!
- * 
+ *
  *  Zum Spielen muss eine Instanz dieser Klasse erzeugt werden und
  *  an ihr die Methode "spielen" aufgerufen werden.
- * 
+ *
  *  Diese Instanz erzeugt und initialisiert alle anderen Objekte
  *  der Anwendung: Sie legt alle R?ume und einen src.Parser an und
  *  startet das src.Spiel. Sie wertet auch die Befehle aus, die der
  *  src.Parser liefert, und sorgt f?r ihre Ausf?hrung.
- * 
+ *
  * @author  Michael K?lling und David J. Barnes
  * @version 2016.02.29
  */
 
-public class Spiel 
+public class Spiel
 {
     private Parser parser;
     private Raum aktuellerRaum;
-        
+
     /**
      * Erzeuge ein src.Spiel und initialisiere die interne Raumkarte.
      */
-    public Spiel() 
+    public Spiel()
     {
         raeumeAnlegen();
         parser = new Parser();
@@ -38,20 +38,27 @@ public class Spiel
     private void raeumeAnlegen()
     {
         Raum draussen, hoersaal, cafeteria, labor, buero;
-      
+
         // die R?ume erzeugen
-        draussen = new Raum("vor dem Haupteingang der Universität");
+        draussen = new Raum("vor dem Haupteingang der Universitï¿½t");
         hoersaal = new Raum("in einem Vorlesungssaal");
         cafeteria = new Raum("in der Cafeteria der Uni");
         labor = new Raum("in einem Rechnerraum");
-        buero = new Raum("im Verwaltungsbüro der Informatik");
-        
+        buero = new Raum("im Verwaltungsbï¿½ro der Informatik");
+
         // die Ausg?nge initialisieren
-        draussen.setzeAusgaenge(null, hoersaal, labor, cafeteria);
-        hoersaal.setzeAusgaenge(null, null, null, draussen);
-        cafeteria.setzeAusgaenge(null, draussen, null, null);
-        labor.setzeAusgaenge(draussen, buero, null, null);
-        buero.setzeAusgaenge(null, null, null, labor);
+        draussen.setzeAusgang("osten", hoersaal);
+        draussen.setzeAusgang("sÃ¼den", labor);
+        draussen.setzeAusgang("westen", cafeteria);
+
+        hoersaal.setzeAusgang("westen", draussen);
+
+        cafeteria.setzeAusgang("osten", draussen);
+
+        labor.setzeAusgang("norden", draussen);
+        labor.setzeAusgang("osten", buero);
+
+        buero.setzeAusgang("westen", labor);
 
         aktuellerRaum = draussen;  // das src.Spiel startet draussen
     }
@@ -60,13 +67,13 @@ public class Spiel
      * Die Hauptmethode zum Spielen. L?uft bis zum Ende des Spiels
      * in einer Schleife.
      */
-    public void spielen() 
-    {            
+    public void spielen()
+    {
         willkommenstextAusgeben();
 
         // Die Hauptschleife. Hier lesen wir wiederholt Befehle ein
         // und f?hren sie aus, bis das src.Spiel beendet wird.
-                
+
         boolean beendet = false;
         while (! beendet) {
             Befehl befehl = parser.liefereBefehl();
@@ -82,23 +89,11 @@ public class Spiel
     {
         System.out.println();
         System.out.println("Willkommen zu Zuul!");
-        System.out.println("Zuul ist ein neues, unglaublich langweiliges src.Spiel.");
+        System.out.println("Zuul ist ein neues, unglaublich langweiliges Spiel.");
         System.out.println("Tippen Sie 'help', wenn Sie Hilfe brauchen.");
         System.out.println();
         System.out.println("Sie sind " + aktuellerRaum.gibBeschreibung());
-        System.out.print("Ausgänge: ");
-        if(aktuellerRaum.nordausgang != null) {
-            System.out.print("north ");
-        }
-        if(aktuellerRaum.ostausgang != null) {
-            System.out.print("east ");
-        }
-        if(aktuellerRaum.suedausgang != null) {
-            System.out.print("south ");
-        }
-        if(aktuellerRaum.westausgang != null) {
-            System.out.print("west ");
-        }
+        System.out.print("AusgÃ¤nge: " + aktuellerRaum.gibAusgaenge());
         System.out.println();
     }
 
@@ -107,7 +102,7 @@ public class Spiel
      * @param befehl   der zu verarbeitende src.Befehl.
      * @return true    wenn der src.Befehl das src.Spiel beendet, false sonst
      */
-    private boolean verarbeiteBefehl(Befehl befehl) 
+    private boolean verarbeiteBefehl(Befehl befehl)
     {
         boolean moechteBeenden = false;
 
@@ -125,7 +120,7 @@ public class Spiel
         else if (befehlswort.equals("quit")) {
             moechteBeenden = beenden(befehl);
         }
-        
+
         return moechteBeenden;
     }
 
@@ -136,12 +131,12 @@ public class Spiel
      * Hier geben wir eine etwas alberne und unklare Beschreibung
      * aus, sowie eine Liste der Befehlsw?rter.
      */
-    private void hilfstextAusgeben() 
+    private void hilfstextAusgeben()
     {
         System.out.println("Sie haben sich verlaufen. Sie sind allein.");
-        System.out.println("Sie irren auf dem Unigelände herum.");
+        System.out.println("Sie irren auf dem Unigelï¿½nde herum.");
         System.out.println();
-        System.out.println("Ihnen stehen folgende Befehle zur Verfügung:");
+        System.out.println("Ihnen stehen folgende Befehle zur Verfï¿½gung:");
         System.out.println("   go quit help");
     }
 
@@ -150,7 +145,7 @@ public class Spiel
      * wechsele in den neuen src.Raum, ansonsten gib eine Fehlermeldung
      * aus.
      */
-    private void wechsleRaum(Befehl befehl) 
+    private void wechsleRaum(Befehl befehl)
     {
         if(!befehl.hatZweitesWort()) {
             // Gibt es kein zweites Wort, wissen wir nicht, wohin...
@@ -159,41 +154,14 @@ public class Spiel
         }
 
         String richtung = befehl.gibZweitesWort();
-
-        // Wir versuchen, den src.Raum zu verlassen.
-        Raum naechsterRaum = null;
-        if(richtung.equals("north")) {
-            naechsterRaum = aktuellerRaum.nordausgang;
-        }
-        if(richtung.equals("east")) {
-            naechsterRaum = aktuellerRaum.ostausgang;
-        }
-        if(richtung.equals("south")) {
-            naechsterRaum = aktuellerRaum.suedausgang;
-        }
-        if(richtung.equals("west")) {
-            naechsterRaum = aktuellerRaum.westausgang;
-        }
+        Raum naechsterRaum = aktuellerRaum.gibAusgang(richtung);
 
         if (naechsterRaum == null) {
-            System.out.println("Dort ist keine T?r!");
-        }
-        else {
+            System.out.println("Dort ist keine TÃ¼r!");
+        } else {
             aktuellerRaum = naechsterRaum;
             System.out.println("Sie sind " + aktuellerRaum.gibBeschreibung());
-            System.out.print("Ausgänge: ");
-            if(aktuellerRaum.nordausgang != null) {
-                System.out.print("north ");
-            }
-            if(aktuellerRaum.ostausgang != null) {
-                System.out.print("east ");
-            }
-            if(aktuellerRaum.suedausgang != null) {
-                System.out.print("south ");
-            }
-            if(aktuellerRaum.westausgang != null) {
-                System.out.print("west ");
-            }
+            System.out.print("AusgÃ¤nge: " + aktuellerRaum.gibAusgaenge());
             System.out.println();
         }
     }
@@ -203,7 +171,7 @@ public class Spiel
      * ob das src.Spiel wirklich beendet werden soll.
      * @return true  wenn der src.Befehl das src.Spiel beendet, false sonst
      */
-    private boolean beenden(Befehl befehl) 
+    private boolean beenden(Befehl befehl)
     {
         if(befehl.hatZweitesWort()) {
             System.out.println("Was soll beendet werden?");
