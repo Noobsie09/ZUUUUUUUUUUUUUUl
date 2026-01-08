@@ -16,7 +16,7 @@ class Befehlswoerter
 {
     // ein konstantes Array mit den g?ltigen Befehlsw?rtern
     private static final String gueltigeBefehle[] = {
-        "go", "quit", "help"
+        "go", "quit", "help" , "up", "down"
     };
 
     /**
